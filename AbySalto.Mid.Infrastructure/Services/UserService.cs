@@ -18,9 +18,14 @@ namespace AbySalto.Mid.Infrastructure.Services
             _jwt = jwt;
         }
 
-        public Task<ServiceResponse<UserDto>> GetUserAsync(int id)
+        public async Task<ServiceResponse<UserDto>> GetUserAsync(int id)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                return ServiceResponse<UserDto>.Fail($"User {id} not found.", 404);
+
+            var dto = new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName);
+            return ServiceResponse<UserDto>.Ok(dto, statusCode: 200);
         }
 
         public async Task<ServiceResponse<AuthResponseDto>> LoginAsync(LoginRequest request)
@@ -28,7 +33,7 @@ namespace AbySalto.Mid.Infrastructure.Services
             var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == request.Email);
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             {
-                return ServiceResponse<AuthResponseDto>.Fail("Pogreška prilikom prijave, molimo Vas pokušajte ponovno.");
+                return ServiceResponse<AuthResponseDto>.Fail("Invalid login. Please try again.", 401);
             }
 
             var dto = new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName);
@@ -36,14 +41,14 @@ namespace AbySalto.Mid.Infrastructure.Services
 
             var response = new AuthResponseDto(token, dto);
 
-            return ServiceResponse<AuthResponseDto>.Ok(response, "Uspješna prijava.");
+            return ServiceResponse<AuthResponseDto>.Ok(response, "Login successful.");
         }
 
         public async Task<ServiceResponse<AuthResponseDto>> RegisterAsync(RegisterRequest request)
         {
             if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             {
-                return ServiceResponse<AuthResponseDto>.Fail("Korisnik s tim mailom već postoji.");
+                return ServiceResponse<AuthResponseDto>.Fail("User wioth email already exists.", 409);
             }
 
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);

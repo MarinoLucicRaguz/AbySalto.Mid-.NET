@@ -16,7 +16,7 @@ namespace AbySalto.Mid.WebApi.Controllers
 
         [HttpPost]
         [Route(nameof(Register))]
-        public async Task<IActionResult> Register(RegisterRequest registerRequest)
+        public async Task<ActionResult<AuthResponseDto>> Register(RegisterRequest registerRequest)
         {
             var response = await _userService.RegisterAsync(registerRequest);
             return HandleResponse(response);
@@ -24,7 +24,7 @@ namespace AbySalto.Mid.WebApi.Controllers
 
         [HttpPost]
         [Route(nameof(Login))]
-        public async Task<IActionResult> Login(LoginRequest loginRequest)
+        public async Task<ActionResult<AuthResponseDto>> Login(LoginRequest loginRequest)
         {
             var response = await _userService.LoginAsync(loginRequest);
             return HandleResponse(response);

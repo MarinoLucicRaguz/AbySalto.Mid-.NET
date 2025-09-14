@@ -4,16 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace AbySalto.Mid.WebApi.Controllers
 {
     [ApiController]
-    public abstract class BaseController : Controller
+    public abstract class BaseController : ControllerBase
     {
-        protected IActionResult HandleResponse<T>(ServiceResponse<T> response)
+        protected ActionResult<T> HandleResponse<T>(ServiceResponse<T> response)
         {
-            if (response.Success)
-            {
-                return Ok(response);
-            }
+            if (response == null) return StatusCode(500, "Null response");
 
-            return BadRequest(response);
+            return StatusCode(response.StatusCode, response);
         }
     }
 }

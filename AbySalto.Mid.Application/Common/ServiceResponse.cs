@@ -5,15 +5,16 @@
         public T? Data { get; set; }
         public bool Success { get; set; } = true;
         public string? Message { get; set; }
+        public int StatusCode { get; set; }
 
-        public static ServiceResponse<T> Ok(T Data, string? Message = null)
+        public static ServiceResponse<T> Ok(T? data, string? message = null, int statusCode = 200)
         {
-            return new ServiceResponse<T> { Data = Data, Success = true, Message = Message };
+            return new ServiceResponse<T> { Data = data, Success = true, Message = message, StatusCode = statusCode };
         }
 
-        public static ServiceResponse<T> Fail(string Message)
+        public static ServiceResponse<T> Fail(string message, int statusCode = 400)
         {
-            return new ServiceResponse<T> { Data = default, Success = false, Message = Message };
+            return new ServiceResponse<T> { Data = default, Success = false, Message = message, StatusCode = statusCode };
         }
     }
 }
