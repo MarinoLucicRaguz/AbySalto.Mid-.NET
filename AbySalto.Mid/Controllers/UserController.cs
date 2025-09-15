@@ -33,5 +33,13 @@ namespace AbySalto.Mid.WebApi.Controllers
             var response = await _userService.LoginAsync(loginRequest);
             return HandleResponse(response);
         }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<ActionResult<UserDto>> GetUserData(CancellationToken ct = default)
+        {
+            var response = await _userService.GetUserAsync(GetUserId(), ct);
+            return HandleResponse(response);
+        }
     }
 }

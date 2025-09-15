@@ -1,6 +1,7 @@
 ﻿using AbySalto.Mid.Application.Common;
 using AbySalto.Mid.Application.DTOs;
 using AbySalto.Mid.Application.Interfaces;
+using AbySalto.Mid.Application.Mapper;
 using AbySalto.Mid.Domain.Entities;
 using AbySalto.Mid.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +31,7 @@ namespace AbySalto.Mid.Infrastructure.Services
             await _context.SaveChangesAsync(ct);
 
             ServiceResponse<ProductDto> product = await _productService.GetByIdAsync(productId, ct);
-            var dto = new FavoriteDto(favorite.Id, productId, product.Data);
+            var dto = FavoriteMapper.ToDto(favorite, product.Data);
 
             return ServiceResponse<FavoriteDto>.Ok(dto, "Added to favorites", 201);
         }
@@ -43,7 +44,7 @@ namespace AbySalto.Mid.Infrastructure.Services
             foreach (var fav in favorites)
             {
                 var productResp = await _productService.GetByIdAsync(fav.ProductId, ct);
-                result.Add(new FavoriteDto(fav.Id, fav.ProductId, productResp.Data));
+                result.Add(FavoriteMapper.ToDto(fav, productResp.Data));
             }
 
             return ServiceResponse<List<FavoriteDto>>.Ok(result, "Favorites retrieved.", 200);

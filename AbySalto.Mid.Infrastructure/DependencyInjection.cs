@@ -43,6 +43,7 @@ namespace AbySalto.Mid.Infrastructure
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IFavoriteService, FavoriteService>();
+            services.AddScoped<IBasketService, BasketService>();
             return services;
         }
 
