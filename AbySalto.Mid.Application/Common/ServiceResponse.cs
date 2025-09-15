@@ -16,5 +16,10 @@
         {
             return new ServiceResponse<T> { Data = default, Success = false, Message = message, StatusCode = statusCode };
         }
+
+        public static ServiceResponse<T> Error(string message, int statusCode = 500)
+        {
+            return new ServiceResponse<T> { Success = false, Message = message, StatusCode = statusCode };
+        }
     }
 }

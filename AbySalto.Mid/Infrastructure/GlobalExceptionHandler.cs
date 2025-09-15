@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+﻿using AbySalto.Mid.Application.Common;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace AbySalto.Mid.WebApi.Infrastructure
 {
@@ -16,17 +16,11 @@ namespace AbySalto.Mid.WebApi.Infrastructure
         {
             _logger.LogError(exception, "This exception is not handled");
 
-            var pd = new ProblemDetails
-            {
-                Status = StatusCodes.Status500InternalServerError,
-                Title = "Unexpected error occured",
-                Detail = exception.Message,
-                Instance = httpContext.Request.Path
-            };
+            var response = ServiceResponse<object>.Error("An unexpected error occurred. Please try again later.", 500);
 
-            httpContext.Response.StatusCode = pd.Status.Value;
+            httpContext.Response.StatusCode = response.StatusCode;
             httpContext.Response.ContentType = "application/json";
-            await httpContext.Response.WriteAsJsonAsync(pd, cancellationToken);
+            await httpContext.Response.WriteAsJsonAsync(response, cancellationToken);
 
             return true;
         }
