@@ -1,4 +1,5 @@
 ﻿using AbySalto.Mid.Application.Common;
+using AbySalto.Mid.WebApi.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -35,6 +36,9 @@ namespace AbySalto.Mid
                 c.AddSecurityDefinition(jwtSS.Reference.Id, jwtSS);
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement { { jwtSS, Array.Empty<string>() } });
             });
+
+            services.AddProblemDetails();
+            services.AddExceptionHandler<GlobalExceptionHandler>();
 
             return services;
         }
