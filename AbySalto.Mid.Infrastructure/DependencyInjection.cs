@@ -42,6 +42,7 @@ namespace AbySalto.Mid.Infrastructure
             services.AddScoped<JwtTokenService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IFavoriteService, FavoriteService>();
             return services;
         }
 

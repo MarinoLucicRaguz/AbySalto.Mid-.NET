@@ -1,4 +1,4 @@
-
+﻿
 using AbySalto.Mid.Application;
 using AbySalto.Mid.Infrastructure;
 
@@ -13,7 +13,8 @@ namespace AbySalto.Mid
             builder.Services
                 .AddPresentation()
                 .AddApplication()
-                .AddInfrastructure(builder.Configuration);
+                .AddInfrastructure(builder.Configuration)
+                .AddJwtAuthentication(builder.Configuration);
 
             builder.Services.AddControllers();
             builder.Services.AddOpenApi();
@@ -33,8 +34,8 @@ namespace AbySalto.Mid
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.MapControllers();
 

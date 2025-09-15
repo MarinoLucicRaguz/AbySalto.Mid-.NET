@@ -10,6 +10,13 @@ namespace AbySalto.Mid.Infrastructure.Persistence
             
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AbysaltoDbContext).Assembly);
+        }
+
         public DbSet<User> Users => Set<User>();
         public DbSet<CartItem> CartItems => Set<CartItem>();
         public DbSet<Favorite> Favorites => Set<Favorite>();

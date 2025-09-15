@@ -1,9 +1,11 @@
 ﻿using AbySalto.Mid.Application.DTOs;
 using AbySalto.Mid.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AbySalto.Mid.WebApi.Controllers
 {
+    [ApiController]
     [Route("api/[controller]")]
     public class UserController : BaseController
     {
@@ -16,6 +18,7 @@ namespace AbySalto.Mid.WebApi.Controllers
 
         [HttpPost]
         [Route(nameof(Register))]
+        [AllowAnonymous]
         public async Task<ActionResult<AuthResponseDto>> Register(RegisterRequest registerRequest)
         {
             var response = await _userService.RegisterAsync(registerRequest);
@@ -24,6 +27,7 @@ namespace AbySalto.Mid.WebApi.Controllers
 
         [HttpPost]
         [Route(nameof(Login))]
+        [AllowAnonymous]
         public async Task<ActionResult<AuthResponseDto>> Login(LoginRequest loginRequest)
         {
             var response = await _userService.LoginAsync(loginRequest);

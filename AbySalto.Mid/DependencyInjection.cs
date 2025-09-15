@@ -1,4 +1,8 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using AbySalto.Mid.Application.Common;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 
 namespace AbySalto.Mid
 {
@@ -12,9 +16,58 @@ namespace AbySalto.Mid
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "AbySalto", Version = "v1" });
+
+                var jwtSS = new OpenApiSecurityScheme
+                {
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Description = "Enter token",
+                    Reference = new OpenApiReference
+                    {
+                        Id = "Bearer",
+                        Type = ReferenceType.SecurityScheme
+                    }
+                };
+
+                c.AddSecurityDefinition(jwtSS.Reference.Id, jwtSS);
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement { { jwtSS, Array.Empty<string>() } });
             });
 
             return services;
+        }
+
+        public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+        {
+            var jwtSect = configuration.GetSection("Jwt");
+            services.Configure<JwtSettings>(jwtSect);
+
+            var jwtSettings = jwtSect.Get<JwtSettings>() ?? throw new InvalidOperationException("JWT settings are not configured properly.");
+            var key = Encoding.UTF8.GetBytes(jwtSettings.Key);
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                };
+            });
+
+            return services;
+
         }
     }
 }

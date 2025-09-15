@@ -38,7 +38,9 @@ namespace AbySalto.Mid.Infrastructure.Services
 
                 string cacheKey = $"products:{skip}:{limit}:{query.SortBy}:{query.Order}";
                 if (_opt.CacheSeconds > 0 && _cache.TryGetValue(cacheKey, out PagedResult<ProductDto>? cached))
+                {
                     return ServiceResponse<PagedResult<ProductDto>>.Ok(cached);
+                }
 
                 var envelope = await _api.GetProductsAsync(skip, limit, query.SortBy, query.Order, ct);
                 var items = envelope.products.Select(Map).ToList();
@@ -46,7 +48,9 @@ namespace AbySalto.Mid.Infrastructure.Services
                 var result = new PagedResult<ProductDto>(items, envelope.total, envelope.skip, envelope.limit);
 
                 if (_opt.CacheSeconds > 0)
+                {
                     _cache.Set(cacheKey, result, TimeSpan.FromSeconds(_opt.CacheSeconds));
+                }
 
                 return ServiceResponse<PagedResult<ProductDto>>.Ok(result);
             }
@@ -63,13 +67,17 @@ namespace AbySalto.Mid.Infrastructure.Services
             {
                 var cacheKey = $"product:{id}";
                 if (_opt.CacheSeconds > 0 && _cache.TryGetValue(cacheKey, out ProductDto? cached))
+                {
                     return ServiceResponse<ProductDto>.Ok(cached);
+                }
 
                 var raw = await _api.GetProductByIdAsync(id, ct);
                 var dto = Map(raw);
 
                 if (_opt.CacheSeconds > 0)
+                {
                     _cache.Set(cacheKey, dto, TimeSpan.FromSeconds(_opt.CacheSeconds));
+                }
 
                 return ServiceResponse<ProductDto>.Ok(dto);
             }
@@ -86,9 +94,9 @@ namespace AbySalto.Mid.Infrastructure.Services
 
         private static ProductDto Map(ProductApiModel? p)
         {
-            if (p is null) throw new ArgumentNullException(nameof(p));
-
-            return new ProductDto(p.id, p.title, p.description, p.price, p.rating, p.stock);
+            return p is null
+                ? throw new ArgumentNullException(nameof(p))
+                : new ProductDto(p.id, p.title, p.description, p.price, p.rating, p.stock);
         }
     }
 }

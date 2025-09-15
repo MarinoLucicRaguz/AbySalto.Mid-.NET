@@ -11,7 +11,7 @@
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
 
-        public List<Favorite>? Favorites { get; set; }
-        public List<CartItem>? CartItems { get; set; }
+        public ICollection<Favorite>? Favorites { get; set; }
+        public ICollection<CartItem>? CartItems { get; set; }
     }
 }
