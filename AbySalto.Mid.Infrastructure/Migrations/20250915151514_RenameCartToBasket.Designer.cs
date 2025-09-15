@@ -4,6 +4,7 @@ using AbySalto.Mid.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AbySalto.Mid.Infrastructure.Migrations
 {
     [DbContext(typeof(AbysaltoDbContext))]
-    partial class AbysaltoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250915151514_RenameCartToBasket")]
+    partial class RenameCartToBasket
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

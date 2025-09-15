@@ -12,6 +12,6 @@
         public string? LastName { get; set; }
 
         public ICollection<Favorite>? Favorites { get; set; }
-        public ICollection<CartItem>? CartItems { get; set; }
+        public ICollection<Basket>? BasketItems { get; set; }
     }
 }

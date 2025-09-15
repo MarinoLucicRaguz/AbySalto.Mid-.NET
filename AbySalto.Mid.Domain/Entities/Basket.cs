@@ -1,6 +1,6 @@
 ﻿namespace AbySalto.Mid.Domain.Entities
 {
-    public class CartItem
+    public class Basket
     {
         public int Id { get; set; }
         public int UserId { get; set; }
