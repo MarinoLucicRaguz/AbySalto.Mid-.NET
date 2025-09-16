@@ -20,7 +20,15 @@ namespace AbySalto.Mid.Infrastructure.External
 
         public async Task<ProductsEnvelope> GetProductsAsync(int skip, int limit, string? sortBy = null, string? order = null, CancellationToken ct = default)
         {
-            var url = $"products?limit={limit}&skip={skip}";
+            var baseFields = new List<string> { "id", "title", "description", "price", "rating", "stock" };
+            if (!string.IsNullOrEmpty(sortBy) && !baseFields.Contains(sortBy.ToLower()))
+            {
+                baseFields.Add(sortBy);
+            }
+
+            var select = string.Join(",", baseFields);
+
+            var url = $"products?limit={limit}&skip={skip}&select={select}";
             if (!string.IsNullOrEmpty(sortBy))
             {
                 url = url + $"&sortBy={sortBy}";
