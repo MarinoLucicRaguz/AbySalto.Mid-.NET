@@ -44,7 +44,7 @@ namespace AbySalto.Mid.Infrastructure.Migrations
                     b.HasIndex("UserId", "ProductId")
                         .IsUnique();
 
-                    b.ToTable("Basket");
+                    b.ToTable("Basket", (string)null);
                 });
 
             modelBuilder.Entity("AbySalto.Mid.Domain.Entities.Favorite", b =>
@@ -66,7 +66,7 @@ namespace AbySalto.Mid.Infrastructure.Migrations
                     b.HasIndex("UserId", "ProductId")
                         .IsUnique();
 
-                    b.ToTable("Favorites");
+                    b.ToTable("Favorites", (string)null);
                 });
 
             modelBuilder.Entity("AbySalto.Mid.Domain.Entities.RefreshToken", b =>
@@ -103,7 +103,7 @@ namespace AbySalto.Mid.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("AbySalto.Mid.Domain.Entities.User", b =>
@@ -140,7 +140,7 @@ namespace AbySalto.Mid.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("AbySalto.Mid.Domain.Entities.Basket", b =>

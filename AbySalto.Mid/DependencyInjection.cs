@@ -1,6 +1,7 @@
 ﻿using AbySalto.Mid.Application.Common;
 using AbySalto.Mid.WebApi.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -53,10 +54,14 @@ namespace AbySalto.Mid
 
         public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
-            var jwtSect = configuration.GetSection("Jwt");
-            services.Configure<JwtSettings>(jwtSect);
+            services.AddOptions<JwtSettings>()
+                .Bind(configuration.GetSection("Jwt"))
+                .ValidateDataAnnotations()
+                .Validate(o => !string.IsNullOrWhiteSpace(o.Key), "JWT Key is required")
+                .ValidateOnStart();
 
-            var jwtSettings = jwtSect.Get<JwtSettings>() ?? throw new InvalidOperationException("JWT settings are not configured properly.");
+            var provider = services.BuildServiceProvider();
+            var jwtSettings = provider.GetRequiredService<IOptions<JwtSettings>>().Value;
             var key = Encoding.UTF8.GetBytes(jwtSettings.Key);
 
             services.AddAuthentication(options =>

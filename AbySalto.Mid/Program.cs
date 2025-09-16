@@ -1,6 +1,8 @@
 ﻿
 using AbySalto.Mid.Application;
 using AbySalto.Mid.Infrastructure;
+using AbySalto.Mid.Infrastructure.Persistence;
+using AbySalto.Mid.WebApi.Extensions;
 
 namespace AbySalto.Mid
 {
@@ -17,6 +19,8 @@ namespace AbySalto.Mid
                 .AddJwtAuthentication(builder.Configuration);
 
             var app = builder.Build();
+
+            app.VerifyMigrations<AbysaltoDbContext>();
 
             app.UseExceptionHandler();
 
