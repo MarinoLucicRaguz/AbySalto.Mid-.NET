@@ -1,5 +1,5 @@
 import type { PagedResult } from "../types/api";
-import type { ProductDetailDto, ProductDto, ProductQuery } from "../types/dto";
+import type { ProductDetailDto, ProductDetailExtendedDto, ProductDto, ProductQuery } from "../types/dto";
 import { safeGet } from "./client/http";
 
 export async function getProducts(query?: ProductQuery) {
@@ -9,7 +9,7 @@ export async function getProducts(query?: ProductQuery) {
   if (query?.sortBy) params.append("sortBy", query.sortBy);
   if (query?.order) params.append("order", query.order);
 
-  return safeGet<PagedResult<ProductDto>>(`/product/getallpaginated?${params.toString()}`);
+  return safeGet<PagedResult<ProductDetailDto>>(`/product/getallpaginated?${params.toString()}`);
 }
 
 export async function getProductById(id: number) {
@@ -17,5 +17,5 @@ export async function getProductById(id: number) {
 }
 
 export async function getProductDetailsById(id: number) {
-  return safeGet<ProductDetailDto>(`/product/getdetailsbyid/${id}`);
+  return safeGet<ProductDetailExtendedDto>(`/product/getdetailsbyid/${id}`);
 }

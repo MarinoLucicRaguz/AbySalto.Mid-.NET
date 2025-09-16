@@ -1,6 +1,6 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import type { ServiceResponse } from "../types/api";
-import type { ProductDetailDto, ProductDto, FavoriteDto } from "../types/dto";
+import type { ProductDto, FavoriteDto, ProductDetailExtendedDto } from "../types/dto";
 import { Box, Typography, CircularProgress, Button, Card, CardContent, Chip, Divider, Rating } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { useAddToBasket } from "../hooks/useBasket";
@@ -32,7 +32,7 @@ export default function ProductDetail() {
 
   if (error) return <Typography color="error">Error loading product</Typography>;
 
-  const result = data as ServiceResponse<ProductDetailDto>;
+  const result = data as ServiceResponse<ProductDetailExtendedDto>;
   const product = result?.data;
 
   if (!product) return <Typography>Product not found</Typography>;

@@ -18,8 +18,6 @@ namespace AbySalto.Mid.Infrastructure.External
             _logger = logger;
         }
 
-        //implementirati i selektiranje specificnih fieldova
-        //neki podaci su staticni neki se cesce mijenjaju poput recenzija
         public async Task<ProductsEnvelope> GetProductsAsync(int skip, int limit, string? sortBy = null, string? order = null, CancellationToken ct = default)
         {
             var url = $"products?limit={limit}&skip={skip}";
@@ -44,7 +42,7 @@ namespace AbySalto.Mid.Infrastructure.External
             return body ?? new ProductsEnvelope();
         }
 
-        public async Task<ProductApiModel?> GetProductByIdAsync(int id, CancellationToken ct = default)
+        public async Task<ProductApiModelExtended?> GetProductByIdAsync(int id, CancellationToken ct = default)
         {
             var url = $"products/{id}";
             using var response = await _client.GetAsync(url, ct);
@@ -59,7 +57,7 @@ namespace AbySalto.Mid.Infrastructure.External
                 throw await CreateHttpException(response, $"GET {url}");
             }
 
-            var body = await response.Content.ReadFromJsonAsync<ProductApiModel>(_jsonOptions, ct);
+            var body = await response.Content.ReadFromJsonAsync<ProductApiModelExtended>(_jsonOptions, ct);
             return body ?? throw new InvalidOperationException("Product payload was empty.");
         }
 

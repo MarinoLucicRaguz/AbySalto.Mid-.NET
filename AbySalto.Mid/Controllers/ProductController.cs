@@ -21,7 +21,7 @@ namespace AbySalto.Mid.Controllers
 
         [HttpGet]
         [Route(nameof(GetAllPaginated))]
-        public async Task<ActionResult<PagedResult<ProductDto>>> GetAllPaginated([FromQuery] int page = 1, [FromQuery] int size = 10, [FromQuery] string? sortBy = null, [FromQuery] string? order = null, CancellationToken ct = default)
+        public async Task<ActionResult<PagedResult<ProductDetailDto>>> GetAllPaginated([FromQuery] int page = 1, [FromQuery] int size = 10, [FromQuery] string? sortBy = null, [FromQuery] string? order = null, CancellationToken ct = default)
         {
             if (page < 1) page = 1;
             if (size < 1) size = 10;
@@ -40,7 +40,7 @@ namespace AbySalto.Mid.Controllers
         
         [HttpGet]
         [Route(nameof(GetDetailsById) + "/{id:int}")]
-        public async Task<ActionResult<ProductDetailDto>> GetDetailsById(int id, CancellationToken ct)
+        public async Task<ActionResult<ProductDetailExtendedDto>> GetDetailsById(int id, CancellationToken ct)
         {
             var response = await _productService.GetDetailsByIdAsync(id, ct);
             return HandleResponse(response);

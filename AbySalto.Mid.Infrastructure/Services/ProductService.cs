@@ -24,7 +24,7 @@ namespace AbySalto.Mid.Infrastructure.Services
             _opt = opt.Value;
         }
 
-        public async Task<ServiceResponse<PagedResult<ProductDto>>> GetAllPaginatedAsync(ProductQuery query, CancellationToken ct = default)
+        public async Task<ServiceResponse<PagedResult<ProductDetailDto>>> GetAllPaginatedAsync(ProductQuery query, CancellationToken ct = default)
         {
             try
             {
@@ -32,27 +32,27 @@ namespace AbySalto.Mid.Infrastructure.Services
                 var skip = Math.Max((query.Page - 1) * limit, 0);
 
                 string cacheKey = $"products:{skip}:{limit}:{query.SortBy}:{query.Order}";
-                if (_opt.CacheSeconds > 0 && _cache.TryGetValue(cacheKey, out PagedResult<ProductDto>? cached))
+                if (_opt.CacheSeconds > 0 && _cache.TryGetValue(cacheKey, out PagedResult<ProductDetailDto>? cached))
                 {
-                    return ServiceResponse<PagedResult<ProductDto>>.Ok(cached);
+                    return ServiceResponse<PagedResult<ProductDetailDto>>.Ok(cached);
                 }
 
                 var envelope = await _api.GetProductsAsync(skip, limit, query.SortBy, query.Order, ct);
-                var items = envelope.products.Select(ProductMapper.ToDto).ToList();
+                var items = envelope.products.Select(ProductMapper.ToDetailDto).ToList();
 
-                var result = new PagedResult<ProductDto>(items, envelope.total, envelope.skip, envelope.limit);
+                var result = new PagedResult<ProductDetailDto>(items, envelope.total, envelope.skip, envelope.limit);
 
                 if (_opt.CacheSeconds > 0)
                 {
                     _cache.Set(cacheKey, result, TimeSpan.FromSeconds(_opt.CacheSeconds));
                 }
 
-                return ServiceResponse<PagedResult<ProductDto>>.Ok(result);
+                return ServiceResponse<PagedResult<ProductDetailDto>>.Ok(result);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to fetch paginated products (page={Page}, size={Size})", query.Page, query.Size);
-                return ServiceResponse<PagedResult<ProductDto>>.Fail("Unable to fetch products.");
+                return ServiceResponse<PagedResult<ProductDetailDto>>.Fail("Unable to fetch products.");
             }
         }
 
@@ -87,34 +87,34 @@ namespace AbySalto.Mid.Infrastructure.Services
             }
         }
 
-        public async Task<ServiceResponse<ProductDetailDto>> GetDetailsByIdAsync(int id, CancellationToken ct = default)
+        public async Task<ServiceResponse<ProductDetailExtendedDto>> GetDetailsByIdAsync(int id, CancellationToken ct = default)
         {
             try
             {
                 var cacheKey = $"product:detail:{id}";
-                if (_opt.CacheSeconds > 0 && _cache.TryGetValue(cacheKey, out ProductDetailDto? cached))
+                if (_opt.CacheSeconds > 0 && _cache.TryGetValue(cacheKey, out ProductDetailExtendedDto? cached))
                 {
-                    return ServiceResponse<ProductDetailDto>.Ok(cached);
+                    return ServiceResponse<ProductDetailExtendedDto>.Ok(cached);
                 }
 
                 var raw = await _api.GetProductByIdAsync(id, ct);
-                var dto = ProductMapper.ToDetailDto(raw);
+                var dto = ProductMapper.ToDetailExtendedDto(raw);
 
                 if (_opt.CacheSeconds > 0)
                 {
                     _cache.Set(cacheKey, dto, TimeSpan.FromSeconds(_opt.CacheSeconds));
                 }
 
-                return ServiceResponse<ProductDetailDto>.Ok(dto);
+                return ServiceResponse<ProductDetailExtendedDto>.Ok(dto);
             }
             catch (KeyNotFoundException)
             {
-                return ServiceResponse<ProductDetailDto>.Fail($"Product {id} not found.");
+                return ServiceResponse<ProductDetailExtendedDto>.Fail($"Product {id} not found.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to fetch product {ProductId}", id);
-                return ServiceResponse<ProductDetailDto>.Fail("Unable to fetch product.");
+                return ServiceResponse<ProductDetailExtendedDto>.Fail("Unable to fetch product.");
             }
         }
     }

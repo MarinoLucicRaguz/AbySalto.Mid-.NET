@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { type PagedResult, type ServiceResponse } from "../types/api";
 import { getProducts } from "../api/productApi";
-import type { FavoriteDto, ProductDto } from "../types/dto";
+import type { FavoriteDto, ProductDetailDto } from "../types/dto";
 import { useAddToBasket } from "../hooks/useBasket";
 import { useFavorites, useAddFavorite, useRemoveFavorite } from "../hooks/useFavorites";
 
@@ -24,15 +24,30 @@ import {
 } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 
-const sortableKeys: (keyof ProductDto)[] = ["title", "price", "rating", "stock"];
+const sortableKeys: (keyof ProductDetailDto)[] = [
+  "title",
+  "price",
+  "rating",
+  "stock",
+  "category",
+  "brand",
+  "sku",
+  "discountPercentage",
+  "availabilityStatus",
+  "minimumOrderQuantity",
+  "warrantyInformation",
+  "shippingInformation",
+  "returnPolicy",
+  "weight",
+];
 
 export default function Products() {
   const location = useLocation();
-  const state = location.state as { page?: number; size?: number; sortBy?: keyof ProductDto; order?: string } | undefined;
+  const state = location.state as { page?: number; size?: number; sortBy?: keyof ProductDetailDto; order?: string } | undefined;
 
   const [page, setPage] = useState(state?.page ?? 0);
   const [size, setSize] = useState<number>(state?.size ?? 10);
-  const [sortBy, setSortBy] = useState<keyof ProductDto>(state?.sortBy ?? "title");
+  const [sortBy, setSortBy] = useState<keyof ProductDetailDto>(state?.sortBy ?? "title");
   const [order, setOrder] = useState(state?.order ?? "asc");
 
   const { data, isLoading, error } = useQuery({
@@ -58,7 +73,7 @@ export default function Products() {
     return <Typography color="error">Error loading products</Typography>;
   }
 
-  const result = data as ServiceResponse<PagedResult<ProductDto>>;
+  const result = data as ServiceResponse<PagedResult<ProductDetailDto>>;
   const products = result.data?.items ?? [];
   const totalCount = result.data?.total ?? 0;
   const totalPages = Math.ceil(totalCount / size);
@@ -68,7 +83,7 @@ export default function Products() {
       <Box display="flex" justifyContent="flex-end" gap={2} mb={3}>
         <FormControl size="small">
           <InputLabel id="sort-by-label">Sort By</InputLabel>
-          <Select labelId="sort-by-label" value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value as keyof ProductDto)}>
+          <Select labelId="sort-by-label" value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value as keyof ProductDetailDto)}>
             {sortableKeys.map((key) => (
               <MenuItem key={key} value={key}>
                 {key.charAt(0).toUpperCase() + key.slice(1)}

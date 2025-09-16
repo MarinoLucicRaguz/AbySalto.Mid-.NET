@@ -18,6 +18,9 @@ export interface ProductDetailDto extends ProductDto {
   shippingInformation: string;
   returnPolicy: string;
   weight: number;
+}
+
+export interface ProductDetailExtendedDto extends ProductDetailDto {
   dimensions: {
     width: number;
     height: number;
