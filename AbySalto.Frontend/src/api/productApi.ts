@@ -1,5 +1,5 @@
 import type { PagedResult } from "../types/api";
-import type { ProductDto, ProductQuery } from "../types/dto";
+import type { ProductDetailDto, ProductDto, ProductQuery } from "../types/dto";
 import { safeGet } from "./client/http";
 
 export async function getProducts(query?: ProductQuery) {
@@ -14,4 +14,8 @@ export async function getProducts(query?: ProductQuery) {
 
 export async function getProductById(id: number) {
   return safeGet<ProductDto>(`/product/${id}`);
+}
+
+export async function getProductDetailsById(id: number) {
+  return safeGet<ProductDetailDto>(`/product/getdetailsbyid/${id}`);
 }

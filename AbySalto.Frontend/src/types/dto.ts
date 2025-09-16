@@ -7,6 +7,42 @@ export interface ProductDto {
   stock: number;
 }
 
+export interface ProductDetailDto extends ProductDto {
+  category: string;
+  brand: string;
+  sku: string;
+  discountPercentage: number;
+  availabilityStatus: string;
+  minimumOrderQuantity: number;
+  warrantyInformation: string;
+  shippingInformation: string;
+  returnPolicy: string;
+  weight: number;
+  dimensions: {
+    width: number;
+    height: number;
+    depth: number;
+  };
+  tags: string[];
+  images: string[];
+  thumbnail: string;
+  reviews: ReviewDto[];
+  meta: {
+    createdAt: string;
+    updatedAt: string;
+    barcode: string;
+    qrCode: string;
+  };
+}
+
+export interface ReviewDto {
+  rating: number;
+  comment: string;
+  date: string;
+  reviewerName: string;
+  reviewerEmail: string;
+}
+
 export interface ProductQuery {
   page?: number;
   size?: number;
