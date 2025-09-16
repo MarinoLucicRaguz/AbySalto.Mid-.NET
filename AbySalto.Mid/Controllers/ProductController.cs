@@ -37,5 +37,13 @@ namespace AbySalto.Mid.Controllers
             var response = await _productService.GetByIdAsync(id, ct);
             return HandleResponse(response);
         }
+        
+        [HttpGet]
+        [Route(nameof(GetDetailsById) + "/{id:int}")]
+        public async Task<ActionResult<ProductDetailDto>> GetDetailsById(int id, CancellationToken ct)
+        {
+            var response = await _productService.GetDetailsByIdAsync(id, ct);
+            return HandleResponse(response);
+        }
     }
 }

@@ -24,11 +24,6 @@ namespace AbySalto.Mid.Infrastructure.Services
             _opt = opt.Value;
         }
 
-        public Task<ServiceResponse<List<ProductDto>>> GetAllAsync(CancellationToken ct = default)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<ServiceResponse<PagedResult<ProductDto>>> GetAllPaginatedAsync(ProductQuery query, CancellationToken ct = default)
         {
             try
@@ -43,7 +38,7 @@ namespace AbySalto.Mid.Infrastructure.Services
                 }
 
                 var envelope = await _api.GetProductsAsync(skip, limit, query.SortBy, query.Order, ct);
-                var items = envelope.products.Select(Map).ToList();
+                var items = envelope.products.Select(ProductMapper.ToDto).ToList();
 
                 var result = new PagedResult<ProductDto>(items, envelope.total, envelope.skip, envelope.limit);
 
@@ -72,7 +67,7 @@ namespace AbySalto.Mid.Infrastructure.Services
                 }
 
                 var raw = await _api.GetProductByIdAsync(id, ct);
-                var dto = Map(raw);
+                var dto = ProductMapper.ToDto(raw);
 
                 if (_opt.CacheSeconds > 0)
                 {
@@ -92,11 +87,35 @@ namespace AbySalto.Mid.Infrastructure.Services
             }
         }
 
-        private static ProductDto Map(ProductApiModel? p)
+        public async Task<ServiceResponse<ProductDetailDto>> GetDetailsByIdAsync(int id, CancellationToken ct = default)
         {
-            return p is null
-                ? throw new ArgumentNullException(nameof(p))
-                : new ProductDto(p.id, p.title, p.description, p.price, p.rating, p.stock);
+            try
+            {
+                var cacheKey = $"product:detail:{id}";
+                if (_opt.CacheSeconds > 0 && _cache.TryGetValue(cacheKey, out ProductDetailDto? cached))
+                {
+                    return ServiceResponse<ProductDetailDto>.Ok(cached);
+                }
+
+                var raw = await _api.GetProductByIdAsync(id, ct);
+                var dto = ProductMapper.ToDetailDto(raw);
+
+                if (_opt.CacheSeconds > 0)
+                {
+                    _cache.Set(cacheKey, dto, TimeSpan.FromSeconds(_opt.CacheSeconds));
+                }
+
+                return ServiceResponse<ProductDetailDto>.Ok(dto);
+            }
+            catch (KeyNotFoundException)
+            {
+                return ServiceResponse<ProductDetailDto>.Fail($"Product {id} not found.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to fetch product {ProductId}", id);
+                return ServiceResponse<ProductDetailDto>.Fail("Unable to fetch product.");
+            }
         }
     }
 }

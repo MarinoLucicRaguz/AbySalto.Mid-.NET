@@ -63,6 +63,9 @@ export default function ProductDetail() {
           <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
             {product.price.toFixed(2)}€
           </Typography>
+          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+            {product.rating.toFixed(2)}/5.00
+          </Typography>
           <Box display="flex" gap={2}>
             <Button variant="contained" color="primary" disabled={isPending} onClick={() => addToBasket({ productId: product.id })}>
               {isPending ? "Adding..." : "Add to Basket"}
