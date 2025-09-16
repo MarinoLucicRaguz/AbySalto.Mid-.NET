@@ -142,3 +142,70 @@ dotnet test
 - Clean Architecture structure
 - Unit + integration tests
 - React frontend for API interaction
+
+## Features
+- Auth
+  - Access token (short-lived) is returned in JSON and stored in Redux (state.auth.token).
+  - Refresh token (long-lived) is stored only in an HTTP-only cookie (never accessible to JS).
+  - Axios interceptor behavior:
+  - Add Authorization: Bearer <access-token> to requests.
+  - If a response is 401, call POST /api/user/refresh (cookie sent automatically).
+  - On success, update Redux with the new access token and retry the original request.
+  - If refresh fails (expired/invalid), clear auth & redirect to /login.
+
+## Frontend State & Data-Fetching
+
+- Redux Toolkit
+  - Slice: auth (token, user).
+  - Persistence: localStorage
+  - Clear on logout or failed refresh.
+
+- React Query
+  - useQuery for products, favorites, basket (caching + loading/error UI).
+  - useMutation for add/remove basket & favorites, login, register, logout.
+
+- Axios client
+ - withCredentials: true (refresh cookie travels with requests)
+ - Request interceptor attaches Authorization.
+
+## API Endpoints Overview
+
+- All endpoints return a ServiceResponse<T> wrapper, created via the shared HandleResponse method in BaseController.
+  - On success → response contains data, success = true, statusCode (usually 200/201).
+  - On error → response contains success = false, message, statusCode.
+
+- Exceptions are caught and shaped consistently via the GlobalExceptionHandler.
+
+- UserController (/api/user)
+  - POST /register - Register a new user. Sets an HTTP-only refresh token cookie and returns an access token + user.
+  - POST /login - Authenticate a user. Sets a refresh token cookie and returns an access token + user.
+  - POST /refresh - Exchange a refresh token (from cookie) for a new access token. Refresh cookie is rotated.
+  - POST /logout - Revokes the current refresh token (from cookie) and deletes it.
+  - GET / (authorized) - Get the current logged-in user’s data.
+
+- ProductController (/api/product)
+  - GET /getallpaginated?page=1&size=10&sortBy=title&order=asc – Fetch a paginated list of products (basic details). Supports pagination & sorting.
+  - GET /{id} – Fetch a single product by id (lightweight ProductDto).
+  - GET /getdetailsbyid/{id} – Fetch full product details (ProductDetailExtendedDto), including extra fields (images, tags, reviews, meta).
+
+- FavoriteController (/api/favorite) (authorized)
+  - POST /{productId} – Add a product to the current user’s favorites.
+  - DELETE /{productId} – Remove a product from the current user’s favorites.
+  - GET / – Get all favorites for the current user.
+
+- BasketController (/api/basket) (authorized)
+  - GET / – Get the current user’s basket.
+  - POST /add/{productId}?increment=1 – Add product to basket (or increase its quantity).
+  - POST /reduce/{productId}?decrement=1 – Reduce quantity of a basket item.
+  - DELETE /{productId} – Remove a product completely from basket.
+  - DELETE / – Clear the entire basket for the current user.
+
+## Common Infrastructure
+
+- HandleResponse (BaseController)
+  - Centralizes API response shaping.
+  - HandleResponse(response) → returns ServiceResponse<T> with status code.
+  - HandleResponse(response, transform) → transforms DTOs (e.g., from AuthResult → AuthResponseDto) while keeping the same response envelope.
+
+- GlobalExceptionHandler
+  - Registered via services.AddExceptionHandler<GlobalExceptionHandler>().
