@@ -11,6 +11,14 @@ namespace AbySalto.Mid
     {
         public static IServiceCollection AddPresentation(this IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("FE", policy =>
+                {
+                    policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                });
+            });
+
             services.AddControllers();
             services.AddOpenApi();
             services.AddEndpointsApiExplorer();

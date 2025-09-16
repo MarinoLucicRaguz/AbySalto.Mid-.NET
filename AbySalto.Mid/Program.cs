@@ -16,9 +16,6 @@ namespace AbySalto.Mid
                 .AddInfrastructure(builder.Configuration)
                 .AddJwtAuthentication(builder.Configuration);
 
-            builder.Services.AddControllers();
-            builder.Services.AddOpenApi();
-
             var app = builder.Build();
 
             app.UseExceptionHandler();
@@ -35,6 +32,8 @@ namespace AbySalto.Mid
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors("FE");
 
             app.UseAuthentication();
             app.UseAuthorization();

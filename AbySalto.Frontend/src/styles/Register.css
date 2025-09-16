@@ -1,0 +1,36 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.register-card {
+  padding: 2rem;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 12px;
+}
+
+.register-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.register-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.register-error {
+  margin-top: 0.5rem;
+  font-size: 1.15rem;
+  text-align: center;
+}
+
+.register-button {
+  margin-top: 1rem;
+  text-transform: none;
+  font-size: 1rem;
+}
