@@ -13,5 +13,6 @@
 
         public ICollection<Favorite>? Favorites { get; set; }
         public ICollection<Basket>? BasketItems { get; set; }
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     }
 }

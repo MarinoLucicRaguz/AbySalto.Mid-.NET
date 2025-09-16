@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { getCurrentUser, login, register } from "../api/authApi";
+import { getCurrentUser, login, logout, register } from "../api/authApi";
 import { useAppDispatch } from "../store/hooks";
 import { setAuth, clearAuth } from "../store/store";
 
@@ -35,5 +35,10 @@ export const useCurrentUser = () =>
 
 export const useLogout = () => {
   const dispatch = useAppDispatch();
-  return () => dispatch(clearAuth());
+  return useMutation({
+    mutationFn: logout,
+    onSuccess: () => {
+      dispatch(clearAuth());
+    },
+  });
 };

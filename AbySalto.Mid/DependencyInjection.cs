@@ -74,7 +74,8 @@ namespace AbySalto.Mid
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = jwtSettings.Issuer,
                     ValidAudience = jwtSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    //ClockSkew = TimeSpan.Zero
                 };
             });
 

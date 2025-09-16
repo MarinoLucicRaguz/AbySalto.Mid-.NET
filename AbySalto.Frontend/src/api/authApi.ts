@@ -16,3 +16,11 @@ export function register(username: string, email: string, password: string) {
 export function getCurrentUser() {
   return safeGet<UserDto>("/user");
 }
+
+export function refresh() {
+  return safePost<AuthResponseDto>("/user/refresh");
+}
+
+export function logout() {
+  return safePost<void>("/user/logout");
+}

@@ -13,7 +13,7 @@ const navLinks = [
 
 export default function Navbar() {
   const auth = useAppSelector((s) => s.auth);
-  const logout = useLogout();
+  const { mutate: logout } = useLogout();
 
   return (
     <AppBar position="static" className="navbar-appbar">
@@ -32,7 +32,7 @@ export default function Navbar() {
               <Typography variant="body1">
                 Hello, <strong>{auth.user.username}</strong>
               </Typography>
-              <Button color="inherit" onClick={logout} className="navbar-logout">
+              <Button color="inherit" onClick={() => logout()} className="navbar-logout">
                 Logout
               </Button>
             </>

@@ -31,42 +31,45 @@ namespace AbySalto.Mid.Infrastructure.Services
             return ServiceResponse<UserDto>.Ok(dto, statusCode: 200);
         }
 
-        public async Task<ServiceResponse<AuthResponseDto>> LoginAsync(LoginRequest request)
+        public async Task<ServiceResponse<AuthResult>> LoginAsync(LoginRequest request)
         {
-            var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == request.Email);
+            var user = await _context.Users.Include(u => u.RefreshTokens).SingleOrDefaultAsync(u => u.Email == request.Email);
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             {
-                return ServiceResponse<AuthResponseDto>.Fail("Invalid login. Please try again.", 401);
+                return ServiceResponse<AuthResult>.Fail("Invalid login. Please try again.", 401);
             }
 
             var dto = UserMapper.ToDto(user);
             var token = _jwt.GenerateToken(dto);
 
-            var response = new AuthResponseDto(token, dto);
+            var newRefreshToken = _jwt.GenerateRefreshToken(user.Id);
+            user.RefreshTokens.Add(newRefreshToken);
+            await _context.SaveChangesAsync();
 
-            return ServiceResponse<AuthResponseDto>.Ok(response, "Login successful.");
+            var response = new AuthResult(token, newRefreshToken, dto);
+            return ServiceResponse<AuthResult>.Ok(response, "Login successful.");
         }
 
-        public async Task<ServiceResponse<AuthResponseDto>> RegisterAsync(RegisterRequest request)
+        public async Task<ServiceResponse<AuthResult>> RegisterAsync(RegisterRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Email) || !System.Net.Mail.MailAddress.TryCreate(request.Email, out _))
             {
-                return ServiceResponse<AuthResponseDto>.Fail("Invalid email format.", 400);
+                return ServiceResponse<AuthResult>.Fail("Invalid email format.", 400);
             }
 
             if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 8)
             {
-                return ServiceResponse<AuthResponseDto>.Fail("Password must be at least 8 characters long.", 400);
+                return ServiceResponse<AuthResult>.Fail("Password must be at least 8 characters long.", 400);
             }
 
             if (!request.Password.Any(char.IsUpper) || !request.Password.Any(char.IsDigit))
             {
-                return ServiceResponse<AuthResponseDto>.Fail("Password must contain at least one uppercase letter and one number.", 400);
+                return ServiceResponse<AuthResult>.Fail("Password must contain at least one uppercase letter and one number.", 400);
             }
 
             if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             {
-                return ServiceResponse<AuthResponseDto>.Fail("User wioth email already exists.", 409);
+                return ServiceResponse<AuthResult>.Fail("User wioth email already exists.", 409);
             }
 
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
@@ -78,8 +81,57 @@ namespace AbySalto.Mid.Infrastructure.Services
             var dto = UserMapper.ToDto(user);
             var token = _jwt.GenerateToken(dto);
 
-            var response = new AuthResponseDto(token, dto);
-            return ServiceResponse<AuthResponseDto>.Ok(response);
+            var refreshToken = _jwt.GenerateRefreshToken(user.Id);
+            user.RefreshTokens.Add(refreshToken);
+            await _context.SaveChangesAsync();
+
+            var response = new AuthResult(token, refreshToken, dto);
+            return ServiceResponse<AuthResult>.Ok(response);
+        }
+
+        public async Task<ServiceResponse<AuthResult>> RefreshAsync(string refreshToken)
+        {
+            var token = await _context.Set<RefreshToken>().Include(t => t.User).SingleOrDefaultAsync(t => t.Token == refreshToken);
+
+            if (token == null || !token.IsActive)
+            {
+                return ServiceResponse<AuthResult>.Fail("Invalid refresh token.", 401);
+            }
+
+            var user = token.User;
+
+            var newRefreshToken = _jwt.GenerateRefreshToken(user.Id);
+            RevokeToken(token, newRefreshToken.Token);
+            user.RefreshTokens.Add(newRefreshToken);
+
+            var dto = UserMapper.ToDto(user);
+            var newJwtToken = _jwt.GenerateToken(dto);
+
+            await _context.SaveChangesAsync();
+
+            var response = new AuthResult(newJwtToken, newRefreshToken, dto);
+            return ServiceResponse<AuthResult>.Ok(response, "Token refreshed.");
+        }
+
+        public async Task<ServiceResponse<bool>> RevokeAsync(string refreshToken)
+        {
+            var token = await _context.Set<RefreshToken>().SingleOrDefaultAsync(t => t.Token == refreshToken);
+
+            if (token == null || !token.IsActive)
+            {
+                return ServiceResponse<bool>.Ok(true);
+            }
+
+            RevokeToken(token);
+            await _context.SaveChangesAsync();
+
+            return ServiceResponse<bool>.Ok(true);
+        }
+
+        private void RevokeToken(RefreshToken token, string? newToken = null)
+        {
+            token.Revoked = DateTime.UtcNow;
+            token.ReplacedByToken = newToken;
         }
     }
 }
