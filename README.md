@@ -7,7 +7,7 @@ The application uses **DummyJSON API** as an external service for fetching produ
 Base skeleton was provided:  
 - [.NET](https://github.com/Abysalto/mid.net)  
 
-## ✅ Application Features
+## Application Features
 
 ### Users
 - User registration  
@@ -30,13 +30,13 @@ Base skeleton was provided:
 - **Pagination and sorting** for products  
 
 ### Technical Requirements
-- ✅ SQL Server database for persisting data  
-- ✅ Backend in .NET  
-- ✅ Frontend in React  
+- SQL Server database for persisting data  
+- Backend in .NET  
+- Frontend in React  
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 - AbySalto.Mid.Domain/ # Domain entities
 - AbySalto.Mid.Application/ # DTOs, services, application logic
 - AbySalto.Mid.Infrastructure/ # Repositories, DummyJSON integration, caching
@@ -47,7 +47,7 @@ Base skeleton was provided:
 
 ---
 
-## ⚙️ Setup & Run
+## Setup & Run
 
 ### 1. Backend (.NET API)
 
